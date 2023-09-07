@@ -21,6 +21,47 @@
           </div>
 
           <div class="mb-2">
+            <!-- Search Ontology-based -->
+            <div
+              v-if="isOntology"
+              class="row"
+            >
+              <form
+                class="form--search"
+              >
+                <input
+                  v-model="query"
+                  type="text"
+                  placeholder="Search FAIR Data Point..."
+                  class="form-control mr-2 mb-2"
+                >
+                <label>Association Relevance Threshold:</label>
+                <input
+                  class="mb-2"
+                  type="number"
+                  value="2.7"
+                  placeholder="the higher, the faster"
+                  @input="event => setRelevanceThreshold(event.target.value)"
+                >
+                <button
+                  class="btn btn-primary mr-2 mb-2"
+                  @click.prevent="searchAssociations()"
+                >
+                  Search
+                </button>
+              </form>
+              <a
+                class="link mb-2"
+                @click.prevent="switchToSimple()"
+              >Switch to simple</a>
+              <a
+                class="link mb-2"
+                @click.prevent="switchToSparql()"
+              >Switch to SPARQL</a>
+            </div>
+          </div>
+
+          <div class="mb-2">
             <!-- Search SPARQL -->
             <div
               v-if="isSparql"
@@ -225,7 +266,7 @@
 
             <!-- Search simple -->
             <form
-              v-else
+              v-if="!isSparql && !isOntology"
               class="form--search"
             >
               <input
@@ -285,6 +326,13 @@
                 @click.prevent="switchToSparql()"
               >
                 Switch to SPARQL
+              </a>
+
+              <a
+                class="link mb-2"
+                @click.prevent="switchToOntology()"
+              >
+                Switch to Ontology-based
               </a>
             </form>
           </div>
@@ -373,6 +421,12 @@ export default class SearchResults extends Vue {
 
   filterData: any = []
 
+  // Ontology association based search
+
+  isOntology: boolean = false
+
+  associationData: any = {}
+
   // Saved queries
 
   savedQueries: any = []
@@ -458,6 +512,10 @@ export default class SearchResults extends Vue {
     })
   }
 
+  setRelevanceThreshold(value) {
+    this.associationData.relevanceThreshold = value
+  }
+
   async searchWithFilters() {
     try {
       await this.$router.push(this.createUrl(this.query, false, null, this.filterData))
@@ -497,12 +555,20 @@ export default class SearchResults extends Vue {
     return value.label || this.pathTerm(value.value) || value.value
   }
 
+  switchToOntology() {
+    this.isOntology = true
+    this.isSparql = false
+  }
+
   switchToSparql() {
     this.isSparql = true
+    this.isOntology = false
     this.$router.push(this.createUrl(this.query, true, null, this.filterData))
   }
 
   switchToSimple() {
+    this.isSparql = false
+    this.isOntology = false
     this.$router.push(this.createUrl(this.query, false, null, this.filterData))
   }
 
@@ -531,6 +597,14 @@ export default class SearchResults extends Vue {
       ...filter,
       values: _.orderBy(filter.values, (value) => this.valueLabel(value).toLocaleLowerCase()),
     }))
+  }
+
+  createAssociationsQuery() {
+    const associationsQuery = {
+      query: this.query,
+      relevanceThreshold: this.associationData.relevanceThreshold,
+    }
+    return associationsQuery
   }
 
   createSparqlQuery() {
@@ -618,6 +692,8 @@ export default class SearchResults extends Vue {
         }
 
         search = this.searchSparql
+      } else if (this.isOntology) {
+        search = this.searchAssociations
       } else {
         search = this.searchSimple
       }
@@ -646,6 +722,18 @@ export default class SearchResults extends Vue {
     }, {})
     const mapIsChecked = (value, isChecked, filter) => checkedValues[filter.predicate][value]
     this.filterData = this.sortFilterValues(this.mapFilterValueIsChecked(filterData, mapIsChecked))
+  }
+
+  async searchAssociations() {
+    try {
+      this.searchStatus.setPending()
+      this.results = null
+      const search = await api.search.postAssociationsQuery(this.createAssociationsQuery())
+      this.results = search.data
+      this.searchStatus.setDone()
+    } catch (error) {
+      this.searchStatus.setError('Unable to get search results')
+    }
   }
 
   async searchSimple() {

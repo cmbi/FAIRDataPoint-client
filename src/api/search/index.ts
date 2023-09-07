@@ -13,6 +13,10 @@ export default {
     return request.post('/search/query', data)
   },
 
+  postAssociationsQuery(data) {
+    return request.post('/search/associations', data)
+  },
+
   getFilters() {
     return request.get('/search/filters')
   },
