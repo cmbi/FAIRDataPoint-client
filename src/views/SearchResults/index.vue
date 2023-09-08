@@ -9,9 +9,17 @@
             <h2>Search</h2>
             <div v-if="isSparql">
               <a
-                class="link"
+                class="link mr-2"
                 @click.prevent="switchToSimple()"
-              >Switch to simple</a>
+              >
+                Switch to simple
+              </a>
+              <a
+                class="link"
+                @click.prevent="switchToOntology()"
+              >
+                Switch to Ontology-based
+              </a>
               <a
                 v-if="savedQueries.length > 0"
                 class="link ml-5"
@@ -23,7 +31,7 @@
           <div class="mb-2">
             <!-- Search Ontology-based -->
             <div
-              v-if="isOntology"
+              v-if="isOntologyAssociation"
               class="row"
             >
               <form
@@ -35,29 +43,35 @@
                   placeholder="Search FAIR Data Point..."
                   class="form-control mr-2 mb-2"
                 >
-                <label>Association Relevance Threshold:</label>
+                <label
+                  class="mr-2"
+                >Association Relevance Threshold:</label>
                 <input
-                  class="mb-2"
+                  class="mr-2"
                   type="number"
                   value="2.7"
-                  placeholder="the higher, the faster"
+                  placeholder="higher means shallower"
                   @input="event => setRelevanceThreshold(event.target.value)"
                 >
                 <button
                   class="btn btn-primary mr-2 mb-2"
-                  @click.prevent="searchAssociations()"
+                  @click.prevent="searchOntologyAssociations()"
                 >
                   Search
                 </button>
               </form>
               <a
-                class="link mb-2"
+                class="link mr-2"
                 @click.prevent="switchToSimple()"
-              >Switch to simple</a>
+              >
+                Switch to simple
+              </a>
               <a
-                class="link mb-2"
+                class="link"
                 @click.prevent="switchToSparql()"
-              >Switch to SPARQL</a>
+              >
+                Switch to SPARQL
+              </a>
             </div>
           </div>
 
@@ -266,7 +280,7 @@
 
             <!-- Search simple -->
             <form
-              v-if="!isSparql && !isOntology"
+              v-if="!isSparql && !isOntologyAssociation"
               class="form--search"
             >
               <input
@@ -322,14 +336,14 @@
               </button>
 
               <a
-                class="link mb-2"
+                class="link mr-2"
                 @click.prevent="switchToSparql()"
               >
                 Switch to SPARQL
               </a>
 
               <a
-                class="link mb-2"
+                class="link"
                 @click.prevent="switchToOntology()"
               >
                 Switch to Ontology-based
@@ -423,9 +437,9 @@ export default class SearchResults extends Vue {
 
   // Ontology association based search
 
-  isOntology: boolean = false
+  isOntologyAssociation: boolean = false
 
-  associationData: any = {}
+  ontologyAssociationData: any = {}
 
   // Saved queries
 
@@ -513,7 +527,7 @@ export default class SearchResults extends Vue {
   }
 
   setRelevanceThreshold(value) {
-    this.associationData.relevanceThreshold = value
+    this.ontologyAssociationData.relevanceThreshold = value
   }
 
   async searchWithFilters() {
@@ -556,19 +570,19 @@ export default class SearchResults extends Vue {
   }
 
   switchToOntology() {
-    this.isOntology = true
+    this.isOntologyAssociation = true
     this.isSparql = false
   }
 
   switchToSparql() {
     this.isSparql = true
-    this.isOntology = false
+    this.isOntologyAssociation = false
     this.$router.push(this.createUrl(this.query, true, null, this.filterData))
   }
 
   switchToSimple() {
     this.isSparql = false
-    this.isOntology = false
+    this.isOntologyAssociation = false
     this.$router.push(this.createUrl(this.query, false, null, this.filterData))
   }
 
@@ -599,12 +613,12 @@ export default class SearchResults extends Vue {
     }))
   }
 
-  createAssociationsQuery() {
-    const associationsQuery = {
+  createOntologyAssociationsQuery() {
+    const ontologyAssociationsQuery = {
       query: this.query,
-      relevanceThreshold: this.associationData.relevanceThreshold,
+      relevanceThreshold: this.ontologyAssociationData.relevanceThreshold,
     }
-    return associationsQuery
+    return ontologyAssociationsQuery
   }
 
   createSparqlQuery() {
@@ -692,8 +706,8 @@ export default class SearchResults extends Vue {
         }
 
         search = this.searchSparql
-      } else if (this.isOntology) {
-        search = this.searchAssociations
+      } else if (this.isOntologyAssociation) {
+        search = this.searchOntologyAssociations
       } else {
         search = this.searchSimple
       }
@@ -724,11 +738,12 @@ export default class SearchResults extends Vue {
     this.filterData = this.sortFilterValues(this.mapFilterValueIsChecked(filterData, mapIsChecked))
   }
 
-  async searchAssociations() {
+  async searchOntologyAssociations() {
     try {
+      const query = this.createOntologyAssociationsQuery()
       this.searchStatus.setPending()
       this.results = null
-      const search = await api.search.postAssociationsQuery(this.createAssociationsQuery())
+      const search = await api.search.postOntologyAssociationsQuery(query)
       this.results = search.data
       this.searchStatus.setDone()
     } catch (error) {

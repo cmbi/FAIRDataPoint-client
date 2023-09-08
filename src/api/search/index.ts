@@ -13,7 +13,7 @@ export default {
     return request.post('/search/query', data)
   },
 
-  postAssociationsQuery(data) {
+  postOntologyAssociationsQuery(data) {
     return request.post('/search/associations', data)
   },
 
