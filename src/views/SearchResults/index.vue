@@ -43,16 +43,6 @@
                   placeholder="Search FAIR Data Point..."
                   class="form-control mr-2 mb-2"
                 >
-                <label
-                  class="mr-2"
-                >Association Relevance Threshold:</label>
-                <input
-                  class="mr-2"
-                  type="number"
-                  value="2.7"
-                  placeholder="higher means shallower"
-                  @input="event => setRelevanceThreshold(event.target.value)"
-                >
                 <button
                   class="btn btn-primary mr-2 mb-2"
                   @click.prevent="searchOntologyAssociations()"
@@ -526,10 +516,6 @@ export default class SearchResults extends Vue {
     })
   }
 
-  setRelevanceThreshold(value) {
-    this.ontologyAssociationData.relevanceThreshold = value
-  }
-
   async searchWithFilters() {
     try {
       await this.$router.push(this.createUrl(this.query, false, null, this.filterData))
@@ -616,7 +602,6 @@ export default class SearchResults extends Vue {
   createOntologyAssociationsQuery() {
     const ontologyAssociationsQuery = {
       query: this.query,
-      relevanceThreshold: this.ontologyAssociationData.relevanceThreshold,
     }
     return ontologyAssociationsQuery
   }
