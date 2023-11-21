@@ -47,6 +47,12 @@ $ npm run test
 $ npm run lint
 ```
 
+Build the docker image: 
+```
+$ docker build -f Dockerfile -t fairdatapoint-client:local .
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
+
