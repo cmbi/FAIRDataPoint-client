@@ -52,6 +52,13 @@ Build the docker image:
 $ docker build -f Dockerfile -t fairdatapoint-client:local .
 ```
 
+### Deploying the Docker Image
+
+Once you've built a docker image, follow the instructions on:
+https://fairdatapoint.readthedocs.io/
+
+Keep in mind that your docker image is named `fairdatapoint-client:local` in this case.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
