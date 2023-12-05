@@ -32,6 +32,9 @@ $ docker build -f Dockerfile -t fairdatapoint-client:local .
 Once you've built a docker image, follow the instructions on:
 https://fairdatapoint.readthedocs.io/
 
+I don't see an instruction of deploy a docker image at this link. Can you present a more specific link?
+
+
 Keep in mind that your docker image is named `fairdatapoint-client:local` in this case.
 
 ## License
