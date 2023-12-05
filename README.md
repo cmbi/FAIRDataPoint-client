@@ -11,12 +11,6 @@
 
 ## Development
 
-Install dependencies using:
-
-```
-$ npm install
-```
-
 Create `public/config.js` file. For local development, you need to set the apiURL to where the FDP server is running, usually:
 
 ```js
@@ -27,25 +21,6 @@ window.config = {
 ```
 
 > **Tip:** If you run both, the server and the client locally, start the server first, because it needs to run on port 8080. The client will then be automatically started on port 8081.
-
-Compile and hot-reload for development:
-
-```
-$ npm run serve
-```
-
-Compile and minify for production:
-
-```
-$ npm run build
-```
-
-Run tests or linter:
-
-```
-$ npm run test
-$ npm run lint
-```
 
 Build the docker image: 
 ```
