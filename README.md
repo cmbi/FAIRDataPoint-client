@@ -1,3 +1,5 @@
+## This is an enhanced FAIR Data Point client, specifically the search capability is enhanced by expanding the search keywords with associations terms extracted froma an ontology. This work is supported by a SURF-DCC pilot, [Enhancing FAIR Data Point's Search Capability as a FAIR Service](https://www.surf.nl/en/news/surf-honors-7-proposals-in-the-3rd-call-for-proposals-for-digital-competence-centers).
+
 # FAIR Data Point Client
 
 > Client application for the [FAIR Data Point](https://github.com/cmbi/FAIRDataPoint) providing an HTML-based user interface for browsing the metadata and administration, with enhanced semantic search capability.
