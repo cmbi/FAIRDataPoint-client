@@ -1,4 +1,4 @@
-## This is an enhanced FAIR Data Point client, specifically the search capability is enhanced by expanding the search keywords with associations terms extracted froma an ontology. This work is supported by a SURF-DCC pilot, [Enhancing FAIR Data Point's Search Capability as a FAIR Service](https://www.surf.nl/en/news/surf-honors-7-proposals-in-the-3rd-call-for-proposals-for-digital-competence-centers).
+## This is an enhanced FAIR Data Point client, specifically the search capability is enhanced by expanding the search keywords with associations terms extracted froma an ontology. Also a ranking algorithm is applied to the rank the result list. This work is supported by a SURF-DCC pilot, [Enhancing FAIR Data Point's Search Capability as a FAIR Service](https://www.surf.nl/en/news/surf-honors-7-proposals-in-the-3rd-call-for-proposals-for-digital-competence-centers).
 
 # FAIR Data Point Client
 
