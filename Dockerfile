@@ -15,11 +15,11 @@ RUN sh scripts/build_info.sh
 
 WORKDIR /
 RUN mv /build/src /src
-RUN mv /build/node_modules/bootstrap /src/~bootstrap
-RUN mv /build/node_modules/bootstrap-vue /src/~bootstrap-vue
-RUN mv /build/node_modules/prismjs /src/~prismjs
-RUN mv /build/node_modules/vue-select /src/~vue-select
-RUN mv /build/node_modules/vue2-datepicker /src/~vue2-datepicker
+RUN mv /node_modules/bootstrap /src/~bootstrap
+RUN mv /node_modules/bootstrap-vue /src/~bootstrap-vue
+RUN mv /node_modules/prismjs /src/~prismjs
+RUN mv /node_modules/vue-select /src/~vue-select
+RUN mv /node_modules/vue2-datepicker /src/~vue2-datepicker
 
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY nginx/start.sh /start.sh
