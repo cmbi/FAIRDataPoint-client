@@ -7,7 +7,7 @@
           <!-- Search header -->
           <div class="d-flex justify-content-between align-items-baseline">
             <h2>Search</h2>
-            <div v-if="isSparql">
+            <div v-if="searchMethod === 'sparql'">
               <a
                 class="link mr-2"
                 @click.prevent="switchToSimple()"
@@ -31,7 +31,7 @@
           <div class="mb-2">
             <!-- Search Ontology-based -->
             <div
-              v-if="isOntologyAssociation"
+              v-if="searchMethod === 'ontology'"
               class="row"
             >
               <form
@@ -68,7 +68,7 @@
           <div class="mb-2">
             <!-- Search SPARQL -->
             <div
-              v-if="isSparql"
+              v-if="searchMethod === 'sparql'"
               class="row"
             >
               <!-- Saved query details -->
@@ -270,7 +270,7 @@
 
             <!-- Search simple -->
             <form
-              v-if="!isSparql && !isOntologyAssociation"
+              v-if="searchMethod !== 'sparql' && searchMethod !== 'ontology'"
               class="form--search"
             >
               <input
@@ -411,9 +411,9 @@ export default class SearchResults extends Vue {
 
   results: any = null
 
-  // SPARQL search
+  searchMethod: string = null
 
-  isSparql: boolean = false
+  // SPARQL search
 
   sparqlParts: any = null
 
@@ -426,8 +426,6 @@ export default class SearchResults extends Vue {
   filterData: any = []
 
   // Ontology association based search
-
-  isOntologyAssociation: boolean = false
 
   ontologyAssociationData: any = {}
 
@@ -481,15 +479,15 @@ export default class SearchResults extends Vue {
 
   // Navigation
 
-  createUrl(query, isSparql, savedQueryUuid = null, filterData = null) {
+  createUrl(query, searchMethod = null, savedQueryUuid = null, filterData = null) {
     const url = []
 
     if (query) {
       url.push(`q=${this.query}`)
     }
 
-    if (isSparql) {
-      url.push('isSparql=true')
+    if (searchMethod) {
+      url.push(`searchMethod=${searchMethod}`)
     }
 
     if (savedQueryUuid) {
@@ -512,13 +510,13 @@ export default class SearchResults extends Vue {
   }
 
   openSavedQuery(savedQueryUuid) {
-    this.$router.push(this.createUrl(null, true, savedQueryUuid)).catch(() => {
+    this.$router.push(this.createUrl(null, 'sparql', savedQueryUuid)).catch(() => {
     })
   }
 
   async searchWithFilters() {
     try {
-      await this.$router.push(this.createUrl(this.query, false, null, this.filterData))
+      await this.$router.push(this.createUrl(this.query, null, null, this.filterData))
     } catch (error) {
       await this.searchSimple()
     }
@@ -556,20 +554,18 @@ export default class SearchResults extends Vue {
   }
 
   switchToOntology() {
-    this.isOntologyAssociation = true
-    this.isSparql = false
+    this.searchMethod = 'ontology'
+    this.$router.push(this.createUrl(this.query, this.searchMethod, null, this.filterData))
   }
 
   switchToSparql() {
-    this.isSparql = true
-    this.isOntologyAssociation = false
-    this.$router.push(this.createUrl(this.query, true, null, this.filterData))
+    this.searchMethod = 'sparql'
+    this.$router.push(this.createUrl(this.query, this.searchMethod, null, this.filterData))
   }
 
   switchToSimple() {
-    this.isSparql = false
-    this.isOntologyAssociation = false
-    this.$router.push(this.createUrl(this.query, false, null, this.filterData))
+    this.searchMethod = null
+    this.$router.push(this.createUrl(this.query, this.searchMethod, null, this.filterData))
   }
 
   mapFilterValueIsChecked(filterData, mapIsChecked) {
@@ -601,7 +597,7 @@ export default class SearchResults extends Vue {
 
   createOntologyAssociationsQuery() {
     const ontologyAssociationsQuery = {
-      query: this.query,
+      query: this.query && this.query.length > 0 ? `${this.queryGraphPatterns}` : '',
     }
     return ontologyAssociationsQuery
   }
@@ -655,7 +651,7 @@ export default class SearchResults extends Vue {
   @Watch('$route')
   async init() {
     this.query = this.$route.query.q as string
-    this.isSparql = this.$route.query.isSparql === 'true'
+    this.searchMethod = this.$route.query.searchMethod as string
 
     try {
       this.status.setPending()
@@ -679,10 +675,9 @@ export default class SearchResults extends Vue {
 
       let search
 
-      if (this.isSparql) {
+      if (this.searchMethod === 'sparql') {
         this.selectedSavedQuery = null
         this.sparqlQuery = this.createSparqlQuery()
-        this.isSparql = true
 
         const savedQueryUuid = this.$route.query.savedQuery
         const savedQuery = this.savedQueries.find((q) => q.uuid === savedQueryUuid)
@@ -691,7 +686,7 @@ export default class SearchResults extends Vue {
         }
 
         search = this.searchSparql
-      } else if (this.isOntologyAssociation) {
+      } else if (this.searchMethod === 'ontology') {
         search = this.searchOntologyAssociations
       } else {
         search = this.searchSimple
