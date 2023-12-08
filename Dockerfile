@@ -2,17 +2,16 @@ FROM nginx:alpine
 
 RUN apk --update add npm make libsass sassc alpine-sdk libffi-dev openssl-dev py3-pip git
 
-COPY package.json package.json
+COPY package.json .
+COPY package-lock.json .
 
 RUN npm install
 
 COPY . /build
 WORKDIR /build
 
-RUN DATE=$(date +"%d. %m. %Y, %H:%M") ; sed -i "s/{builtAt}/$DATE/g" src/components/FdpFooter/index.vue
-RUN VERSION=$(git describe --tags) ; sed -i "s/{version}/$VERSION/g" src/components/FdpFooter/index.vue
-
 RUN npm run build
+RUN sh scripts/build_info.sh
 
 WORKDIR /
 RUN mv /build/src /src
