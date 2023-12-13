@@ -597,7 +597,7 @@ export default class SearchResults extends Vue {
 
   createOntologyAssociationsQuery() {
     const ontologyAssociationsQuery = {
-      query: this.query && this.query.length > 0 ? `${this.queryGraphPatterns}` : '',
+      query: this.query && this.query.length > 0 ? this.query : '',
     }
     return ontologyAssociationsQuery
   }
